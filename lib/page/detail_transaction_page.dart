@@ -73,7 +73,8 @@ class _DetailTransactionState extends State<DetailTransaction> {
         body: BlocBuilder<DetailTransactionCubit, DetailTransactionState>(
             builder: (_, state) => (state is DetailTransactionLoaded)
                 ? SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 94),
+                    padding: EdgeInsets.fromLTRB(16, 16, 16,
+                        (state.transaction.data.status == 'done') ? 16 : 94),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -165,185 +166,163 @@ class _DetailTransactionState extends State<DetailTransaction> {
                         SizedBox(
                           height: 8,
                         ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: state.transaction.data.transcation.length,
-                          itemBuilder: ((context, index) {
-                            var data =
-                                state.transaction.data.transcation[index];
-                            return Container(
-                              margin: EdgeInsets.only(
-                                  bottom: (data ==
-                                          state.transaction.data.transcation
-                                              .last)
-                                      ? 0
-                                      : 16),
-                              padding: EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data.product.name,
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 4,
-                                        ),
-                                        Text(
-                                          'Jumlah : ${data.count}',
-                                          style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 4,
-                                        ),
-                                        Text(
-                                          NumberFormat.currency(
-                                            locale: "id_ID",
-                                            decimalDigits: 0,
-                                            symbol: "Rp ",
-                                          ).format(data.price),
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
+                        (state.transaction.data.transcation.isNotEmpty)
+                            ? ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount:
+                                    state.transaction.data.transcation.length,
+                                itemBuilder: ((context, index) {
+                                  var data =
+                                      state.transaction.data.transcation[index];
+                                  return Container(
+                                    margin: EdgeInsets.only(
+                                        bottom: (data ==
+                                                state.transaction.data
+                                                    .transcation.last)
+                                            ? 0
+                                            : 16),
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.2),
+                                          spreadRadius: 1,
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  if (state.transaction.data.status != 'done')
-                                    SizedBox(
-                                      width: 16,
-                                    ),
-                                  if (state.transaction.data.status != 'done')
-                                    Column(
+                                    child: Row(
                                       children: [
-                                        GestureDetector(
-                                          onTap: () async {
-                                            LoadingIndicator.show(context);
-
-                                            await context
-                                                .read<
-                                                    DeleteProductTransactionCubit>()
-                                                .deleteProductTransaction(
-                                                    data.id);
-
-                                            DeleteProductTransactionState
-                                                state = context
-                                                    .read<
-                                                        DeleteProductTransactionCubit>()
-                                                    .state;
-
-                                            if (state
-                                                is DeleteProductTransactionLoaded) {
-                                              await context
-                                                  .read<
-                                                      DetailTransactionCubit>()
-                                                  .getDetailTransaction(
-                                                      widget.idTransaction);
-                                              Navigator.pop(
-                                                  _scaffoldKey.currentContext);
-                                              ShowToast.show(
-                                                  message: 'Berhasil dihapus');
-                                            } else {
-                                              ShowToast.show(
-                                                  message: (state
-                                                          as DeleteProductTransactionLoadingFailed)
-                                                      .message);
-                                              Navigator.pop(
-                                                  _scaffoldKey.currentContext);
-                                            }
-                                          },
-                                          child: Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                data.product.name,
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 4,
+                                              ),
+                                              Text(
+                                                'Jumlah : ${data.count}',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 4,
+                                              ),
+                                              Text(
+                                                NumberFormat.currency(
+                                                  locale: "id_ID",
+                                                  decimalDigits: 0,
+                                                  symbol: "Rp ",
+                                                ).format(data.price),
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
+                                        if (state.transaction.data.status !=
+                                            'done')
+                                          SizedBox(
+                                            width: 16,
+                                          ),
+                                        if (state.transaction.data.status !=
+                                            'done')
+                                          Column(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  LoadingIndicator.show(
+                                                      context);
+
+                                                  await context
+                                                      .read<
+                                                          DeleteProductTransactionCubit>()
+                                                      .deleteProductTransaction(
+                                                          data.id);
+
+                                                  DeleteProductTransactionState
+                                                      state = context
+                                                          .read<
+                                                              DeleteProductTransactionCubit>()
+                                                          .state;
+
+                                                  if (state
+                                                      is DeleteProductTransactionLoaded) {
+                                                    await context
+                                                        .read<
+                                                            DetailTransactionCubit>()
+                                                        .getDetailTransaction(
+                                                            widget
+                                                                .idTransaction);
+                                                    Navigator.pop(_scaffoldKey
+                                                        .currentContext);
+                                                    ShowToast.show(
+                                                        message:
+                                                            'Berhasil dihapus');
+                                                  } else {
+                                                    ShowToast.show(
+                                                        message: (state
+                                                                as DeleteProductTransactionLoadingFailed)
+                                                            .message);
+                                                    Navigator.pop(_scaffoldKey
+                                                        .currentContext);
+                                                  }
+                                                },
+                                                child: Icon(
+                                                  Icons.delete,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                       ],
                                     ),
-                                ],
+                                  );
+                                }),
+                              )
+                            : Text(
+                                'Belum ada pesanan',
                               ),
-                            );
-                          }),
-                        ),
                         SizedBox(
                           height: 24,
                         ),
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Total',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    state.transaction.data.total != null
-                                        ? NumberFormat.currency(
-                                            locale: "id_ID",
-                                            decimalDigits: 0,
-                                            symbol: "Rp ",
-                                          ).format(state.transaction.data.total)
-                                        : '-',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (state.transaction.data.bayar != null)
-                                SizedBox(
-                                  height: 16,
+                        if (state.transaction.data.transcation.isNotEmpty)
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  spreadRadius: 1,
                                 ),
-                              if (state.transaction.data.bayar != null)
+                              ],
+                            ),
+                            child: Column(
+                              children: [
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Bayar',
+                                      'Total',
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
@@ -351,14 +330,18 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                       ),
                                     ),
                                     Text(
-                                      state.transaction.data.bayar != null
-                                          ? NumberFormat.currency(
-                                              locale: "id_ID",
-                                              decimalDigits: 0,
-                                              symbol: "Rp ",
-                                            ).format(
-                                              state.transaction.data.bayar)
-                                          : '-',
+                                      NumberFormat.currency(
+                                        locale: "id_ID",
+                                        decimalDigits: 0,
+                                        symbol: "Rp ",
+                                      ).format(
+                                        state.transaction.data.total != null
+                                            ? state.transaction.data.total
+                                            : state.transaction.data.transcation
+                                                .map((e) => e.price)
+                                                .reduce((value, element) =>
+                                                    value + element),
+                                      ),
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
@@ -367,58 +350,97 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                     ),
                                   ],
                                 ),
-                              if (state.transaction.data.kembalian != null)
-                                SizedBox(
-                                  height: 16,
-                                ),
-                              if (state.transaction.data.kembalian != null)
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Kembalian',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                if (state.transaction.data.bayar != null)
+                                  SizedBox(
+                                    height: 16,
+                                  ),
+                                if (state.transaction.data.bayar != null)
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Bayar',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      state.transaction.data.kembalian != null
-                                          ? NumberFormat.currency(
-                                              locale: "id_ID",
-                                              decimalDigits: 0,
-                                              symbol: "Rp ",
-                                            ).format(
-                                              state.transaction.data.kembalian)
-                                          : '-',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                      Text(
+                                        state.transaction.data.bayar != null
+                                            ? NumberFormat.currency(
+                                                locale: "id_ID",
+                                                decimalDigits: 0,
+                                                symbol: "Rp ",
+                                              ).format(
+                                                state.transaction.data.bayar)
+                                            : '-',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                            ],
+                                    ],
+                                  ),
+                                if (state.transaction.data.kembalian != null)
+                                  SizedBox(
+                                    height: 16,
+                                  ),
+                                if (state.transaction.data.kembalian != null)
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Kembalian',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        state.transaction.data.kembalian != null
+                                            ? NumberFormat.currency(
+                                                locale: "id_ID",
+                                                decimalDigits: 0,
+                                                symbol: "Rp ",
+                                              ).format(state
+                                                .transaction.data.kembalian)
+                                            : '-',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 24,
-                        ),
-                        if (state.transaction.data.status != 'done')
+                        if (state.transaction.data.status != 'done' &&
+                            state.transaction.data.transcation.isNotEmpty)
+                          SizedBox(
+                            height: 24,
+                          ),
+                        if (state.transaction.data.status != 'done' &&
+                            state.transaction.data.transcation.isNotEmpty)
                           CustomTextField(
                             controller: _bayarController,
                             type: TextInputType.number,
                             hintText: 'Masukkan pembayaran',
                             obscureText: false,
                           ),
-                        if (state.transaction.data.status != 'done')
+                        if (state.transaction.data.status != 'done' &&
+                            state.transaction.data.transcation.isNotEmpty)
                           SizedBox(
                             height: 16,
                           ),
-                        if (state.transaction.data.status != 'done')
+                        if (state.transaction.data.status != 'done' &&
+                            state.transaction.data.transcation.isNotEmpty)
                           ButtonPrimary(
                               buttonPressed: () async {
                                 LoadingIndicator.show(context);
