@@ -11,6 +11,7 @@ import 'package:si_pos/cubit/delete_transaction_cubit.dart';
 import 'package:si_pos/cubit/detail_transaction_cubit.dart';
 import 'package:si_pos/cubit/done_transaction_cubit.dart';
 import 'package:si_pos/cubit/report_cubit.dart';
+import 'package:si_pos/cubit/send_invoice_cubit.dart';
 import 'package:si_pos/cubit/transaction_cubit.dart';
 import 'elements/custom.dart' as custom;
 import 'elements/config.dart';
@@ -25,6 +26,7 @@ void main() {
       BlocProvider(create: (_) => DoneTransactionCubit()),
       BlocProvider(create: (_) => DeleteTransactionCubit()),
       BlocProvider(create: (_) => ReportCubit()),
+      BlocProvider(create: (_) => SendInvoiceCubit()),
     ],
     child: new MaterialApp(
         title: 'Warkop Magellona',
@@ -89,6 +91,7 @@ class _SplashState extends State<Splash> {
       prefs.setInt('userId', json['id']);
       prefs.setString('userName', json['username']);
       prefs.setString('userEmail', json['email']);
+      prefs.setInt('role', json['role']);
     } else {
       logout();
     }
@@ -121,7 +124,6 @@ class _SplashState extends State<Splash> {
           children: [
             Image.asset(
               "images/logo.jpeg",
-              width: 300,
             ),
           ],
         ),
@@ -171,7 +173,6 @@ class _PrepageState extends State<Prepage> {
               SizedBox(height: MediaQuery.of(context).size.height * 0.25),
               Image.asset(
                 "images/logo.jpeg",
-                width: 300,
               ),
               Expanded(
                   child: Column(
@@ -249,6 +250,7 @@ class _LoginState extends State<Login> {
       prefs.setInt('userId', json['id']);
       prefs.setString('userName', json['username']);
       prefs.setString('userEmail', json['email']);
+      prefs.setInt('role', json['role']);
     }
 
     setState(() {
@@ -296,14 +298,9 @@ class _LoginState extends State<Login> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "images/logo.jpeg",
-                          width: 300,
-                        ),
-                      ],
+                    Image.asset(
+                      "images/logo.jpeg",
+                      // width: 300,
                     ),
                     SizedBox(height: 30),
                     Container(
@@ -472,6 +469,7 @@ class _RegisterState extends State<Register> {
       prefs.setInt('userId', json['id']);
       prefs.setString('userName', json['username']);
       prefs.setString('userEmail', json['email']);
+      prefs.setInt('role', json['role']);
     }
 
     setState(() {

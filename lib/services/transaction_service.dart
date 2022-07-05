@@ -159,4 +159,29 @@ class TransactionService {
 
     return ApiReturnValue(value: value);
   }
+
+  static Future<ApiReturnValue<int>> sendInvoice(
+      {String id, String email}) async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var token = localStorage.getString('loginToken');
+
+    Uri urlApi =
+        Uri.parse('$url/api/auth/transaction/send-email/$id?email=$email');
+
+    var response = await http.get(urlApi, headers: {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    });
+    log(urlApi.toString());
+    log(response.body);
+    log(response.statusCode.toString());
+
+    if (response.statusCode != 200) {
+      return ApiReturnValue(message: 'Terjadi kesalahan, coba lagi');
+    }
+
+    // var data = jsonDecode(response.body);
+
+    return ApiReturnValue(statusCode: response.statusCode);
+  }
 }

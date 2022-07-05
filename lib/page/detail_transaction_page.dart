@@ -5,6 +5,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:si_pos/cubit/delete_product_transaction_cubit.dart';
 import 'package:si_pos/cubit/detail_transaction_cubit.dart';
 import 'package:si_pos/cubit/done_transaction_cubit.dart';
+import 'package:si_pos/cubit/send_invoice_cubit.dart';
 import 'package:si_pos/cubit/transaction_cubit.dart';
 import 'package:si_pos/elements/custom.dart';
 import 'package:si_pos/page/add_product_to_transaction_page.dart';
@@ -27,6 +28,7 @@ class DetailTransaction extends StatefulWidget {
 class _DetailTransactionState extends State<DetailTransaction> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _bayarController = TextEditingController();
+  final _emailController = TextEditingController();
 
   @override
   void initState() {
@@ -201,7 +203,9 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                data.product.name,
+                                                (data.product != null)
+                                                    ? data.product.name
+                                                    : '-',
                                                 style: TextStyle(
                                                   color: Colors.black,
                                                   fontSize: 16,
@@ -212,7 +216,21 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                                 height: 4,
                                               ),
                                               Text(
-                                                'Jumlah : ${data.count}',
+                                                (data.product != null)
+                                                    ? 'Harga Satuan : ${data.product.price}'
+                                                    : '-',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 4,
+                                              ),
+                                              Text(
+                                                (data.product != null)
+                                                    ? 'Jumlah : ${data.count}'
+                                                    : '-',
                                                 style: TextStyle(
                                                   color: Colors.grey,
                                                   fontSize: 14,
@@ -421,64 +439,108 @@ class _DetailTransactionState extends State<DetailTransaction> {
                               ],
                             ),
                           ),
-                        if (state.transaction.data.status != 'done' &&
-                            state.transaction.data.transcation.isNotEmpty)
-                          SizedBox(
-                            height: 24,
-                          ),
-                        if (state.transaction.data.status != 'done' &&
-                            state.transaction.data.transcation.isNotEmpty)
-                          CustomTextField(
-                            controller: _bayarController,
-                            type: TextInputType.number,
-                            hintText: 'Masukkan pembayaran',
-                            obscureText: false,
-                          ),
-                        if (state.transaction.data.status != 'done' &&
-                            state.transaction.data.transcation.isNotEmpty)
-                          SizedBox(
-                            height: 16,
-                          ),
-                        if (state.transaction.data.status != 'done' &&
-                            state.transaction.data.transcation.isNotEmpty)
-                          ButtonPrimary(
-                              buttonPressed: () async {
-                                LoadingIndicator.show(context);
-                                await context
-                                    .read<DoneTransactionCubit>()
-                                    .doneTransaction(
-                                      id: widget.idTransaction,
-                                      bayar: _bayarController.text.trim(),
-                                      kembalian: (int.parse(_bayarController
-                                                  .text
-                                                  .trim()) -
-                                              state.transaction.data.transcation
-                                                  .map((e) => e.price)
-                                                  .reduce((a, b) => a + b))
-                                          .toString(),
-                                    );
-                                DoneTransactionState doneState =
-                                    context.read<DoneTransactionCubit>().state;
+                        if (state.transaction.data.status == 'done')
+                          Column(
+                            children: [
+                              SizedBox(
+                                height: 16,
+                              ),
+                              CustomTextField(
+                                controller: _emailController
+                                  ..text = state.transaction.data.email,
+                                type: TextInputType.emailAddress,
+                                hintText: 'Masukkan email',
+                                obscureText: false,
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              ButtonPrimary(
+                                  buttonPressed: () async {
+                                    LoadingIndicator.show(context);
+                                    await context
+                                        .read<SendInvoiceCubit>()
+                                        .sendInvoice(
+                                            id: state.transaction.data.id
+                                                .toString(),
+                                            email:
+                                                _emailController.text.trim());
+                                    SendInvoiceState sendInvoice =
+                                        context.read<SendInvoiceCubit>().state;
 
-                                if (doneState is DoneTransactionLoaded) {
-                                  await context
-                                      .read<DetailTransactionCubit>()
-                                      .getDetailTransaction(
-                                          widget.idTransaction);
-                                  await context
-                                      .read<TransactionCubit>()
-                                      .getTransaction();
-                                  Navigator.pop(context);
-                                  ShowToast.show(message: 'Berhasil');
-                                } else {
-                                  Navigator.pop(context);
-                                  ShowToast.show(
-                                      message: (doneState
-                                              as DoneTransactionLoadingFailed)
-                                          .message);
-                                }
-                              },
-                              buttonText: "Submit"),
+                                    if (sendInvoice is SendInvoiceLoaded) {
+                                      Navigator.pop(context);
+                                      ShowToast.show(
+                                          message: 'Berhasil dikirim');
+                                    } else {
+                                      Navigator.pop(context);
+                                      ShowToast.show(
+                                          message: (sendInvoice
+                                                  as SendInvoiceLoadingFailed)
+                                              .message);
+                                    }
+                                  },
+                                  buttonText: "Kirim Invoice"),
+                            ],
+                          ),
+                        if (state.transaction.data.status != 'done' &&
+                            state.transaction.data.transcation.isNotEmpty)
+                          Column(
+                            children: [
+                              SizedBox(
+                                height: 24,
+                              ),
+                              CustomTextField(
+                                controller: _bayarController,
+                                type: TextInputType.number,
+                                hintText: 'Masukkan pembayaran',
+                                obscureText: false,
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              ButtonPrimary(
+                                  buttonPressed: () async {
+                                    LoadingIndicator.show(context);
+                                    await context
+                                        .read<DoneTransactionCubit>()
+                                        .doneTransaction(
+                                          id: widget.idTransaction,
+                                          bayar: _bayarController.text.trim(),
+                                          kembalian: (int.parse(_bayarController
+                                                      .text
+                                                      .trim()) -
+                                                  state.transaction.data
+                                                      .transcation
+                                                      .map((e) => e.price)
+                                                      .reduce((a, b) => a + b))
+                                              .toString(),
+                                        );
+                                    DoneTransactionState doneState = context
+                                        .read<DoneTransactionCubit>()
+                                        .state;
+
+                                    if (doneState is DoneTransactionLoaded) {
+                                      await context
+                                          .read<DetailTransactionCubit>()
+                                          .getDetailTransaction(
+                                              widget.idTransaction);
+                                      await context
+                                          .read<TransactionCubit>()
+                                          .getTransaction();
+                                      Navigator.pop(context);
+                                      ShowToast.show(message: 'Berhasil');
+                                    } else {
+                                      Navigator.pop(context);
+                                      ShowToast.show(
+                                          message: (doneState
+                                                  as DoneTransactionLoadingFailed)
+                                              .message);
+                                    }
+                                  },
+                                  buttonText: "Submit"),
+                            ],
+                          ),
                       ],
                     ),
                   )

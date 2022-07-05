@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:si_pos/elements/config.dart';
+import 'package:si_pos/elements/custom.dart';
 import 'package:si_pos/page/report_transaction_page.dart';
 import '../elements/custom.dart' as custom;
 import '../main.dart' as main;
@@ -22,6 +24,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String date;
   String username;
+  int role;
   Timer _timer;
   var totalTransaction;
 
@@ -46,6 +49,8 @@ class _HomeState extends State<Home> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString('userName');
+      role = prefs.getInt('role');
+      log('role : $role');
     });
   }
 
@@ -86,18 +91,26 @@ class _HomeState extends State<Home> {
   }
 
   void gotoProduct() {
-    Navigator.push(
-        context,
-        PageTransition(
-            child: product.Product(), type: PageTransitionType.rightToLeft));
+    if (role == 1 || role == 2) {
+      Navigator.push(
+          context,
+          PageTransition(
+              child: product.Product(), type: PageTransitionType.rightToLeft));
+    } else {
+      ShowToast.show(message: 'Anda tidak punya akses untuk ini');
+    }
   }
 
   void gotoTransaction() {
-    Navigator.push(
-        context,
-        PageTransition(
-            child: transaction_list.TransactionListPage(),
-            type: PageTransitionType.rightToLeft));
+    if (role == 1 || role == 3) {
+      Navigator.push(
+          context,
+          PageTransition(
+              child: transaction_list.TransactionListPage(),
+              type: PageTransitionType.rightToLeft));
+    } else {
+      ShowToast.show(message: 'Anda tidak punya akses untuk ini');
+    }
   }
 
   void gotoAddTransaction() {
@@ -226,11 +239,16 @@ class _HomeState extends State<Home> {
                     Expanded(
                       child: custom.PanelButton(
                           buttonPressed: () {
-                            Navigator.push(
-                                context,
-                                PageTransition(
-                                    child: ReportTransactionPage(),
-                                    type: PageTransitionType.rightToLeft));
+                            if (role == 1 || role == 3) {
+                              Navigator.push(
+                                  context,
+                                  PageTransition(
+                                      child: ReportTransactionPage(),
+                                      type: PageTransitionType.rightToLeft));
+                            } else {
+                              ShowToast.show(
+                                  message: 'Anda tidak punya akses untuk ini');
+                            }
                           },
                           buttonText: "Report",
                           buttonIcon: Icons.assignment_outlined),
