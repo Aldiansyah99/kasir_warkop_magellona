@@ -12,6 +12,7 @@ import 'package:si_pos/cubit/detail_transaction_cubit.dart';
 import 'package:si_pos/cubit/done_transaction_cubit.dart';
 import 'package:si_pos/cubit/report_cubit.dart';
 import 'package:si_pos/cubit/send_invoice_cubit.dart';
+import 'package:si_pos/cubit/send_report_to_email_cubit.dart';
 import 'package:si_pos/cubit/transaction_cubit.dart';
 import 'elements/custom.dart' as custom;
 import 'elements/config.dart';
@@ -27,6 +28,7 @@ void main() {
       BlocProvider(create: (_) => DeleteTransactionCubit()),
       BlocProvider(create: (_) => ReportCubit()),
       BlocProvider(create: (_) => SendInvoiceCubit()),
+      BlocProvider(create: (_) => SendReportToEmailCubit()),
     ],
     child: new MaterialApp(
         title: 'Warkop Magellona',
@@ -116,6 +118,7 @@ class _SplashState extends State<Splash> {
   Widget build(BuildContext context) {
     return (new Center(
       child: Container(
+        padding: EdgeInsets.all(24),
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(color: Colors.white),

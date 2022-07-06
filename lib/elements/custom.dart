@@ -251,6 +251,7 @@ PreferredSizeWidget customAppBar(text) {
       elevation: 3,
       backgroundColor: Colors.white,
       iconTheme: IconThemeData(color: Colors.black),
+      actions: [],
       title: Text(text,
           style: TextStyle(
               color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)));

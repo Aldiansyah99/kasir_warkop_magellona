@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:si_pos/cubit/report_cubit.dart';
+import 'package:si_pos/cubit/send_report_to_email_cubit.dart';
 import 'package:si_pos/elements/custom.dart';
 import 'package:si_pos/page/detail_transaction_page.dart';
 
@@ -36,6 +37,29 @@ class _ReportTransactionPageState extends State<ReportTransactionPage> {
                 padding: EdgeInsets.all(16),
                 child: Column(
                   children: [
+                    ButtonPrimary(
+                      buttonText: 'Send Report To Email',
+                      buttonPressed: () async {
+                        LoadingIndicator.show(context);
+                        await context
+                            .read<SendReportToEmailCubit>()
+                            .sendReportToEmail();
+
+                        SendReportToEmailState sendReportState =
+                            context.read<SendReportToEmailCubit>().state;
+
+                        if (sendReportState is SendReportToEmailLoaded) {
+                          Navigator.pop(context);
+                          ShowToast.show(message: 'Berhasil dikirim');
+                        } else {
+                          Navigator.pop(context);
+                          ShowToast.show(message: 'Terjadi kesalahan');
+                        }
+                      },
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
                     Row(
                       children: [
                         Expanded(
